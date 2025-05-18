@@ -63,8 +63,13 @@ async function run() {
       messages: [
         {
           role: "system",
-          content:
-            "You are a professional GitHub reviewer. All your answers MUST be written in Korean. Do NOT use English. Follow the user’s template and order strictly."
+          content: `
+Answer ONLY in Korean and ONLY in markdown.
+Strictly follow the user’s template, order, and section titles.
+NEVER add, change, remove, or reorder main sections or numbers (like 1., 2., 3.).
+For sublists, use sub-numbers (1-1, 1-2) or bullets. Do NOT use main numbers.
+Do not translate to English. Use concise language.
+`.trim()
         },
         {
           role: "user",
