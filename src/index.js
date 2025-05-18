@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 
 async function run() {
   try {
@@ -21,6 +21,7 @@ async function run() {
 
     const octokit = github.getOctokit(token);
 
+    // 파일 목록
     let files = [];
     let page = 1;
     let response;
@@ -47,33 +48,17 @@ async function run() {
 
     const fileList = files.map(f => `- ${f.filename}`).join('\n');
 
+    // 프롬프트 조립
+    const prompt = template
+      .replace("{{파일목록}}", fileList)
+      .replace("{{diff}}", diff);
 
-    const prompt = `
-Below is the unified diff for a GitHub pull request.
+    // === openai 4.x 방식 ===
+    const openai = new OpenAI({
+      apiKey: openaiApiKey
+    });
 
-Summarize the pull request strictly following the following Korean template (양식, 항목명, 순서, 내용 모두 한국어로 작성):
-
-${template}
-
-Instructions:
-- Your entire response must be written in Korean, including all section titles and content.
-- Use clear Korean expressions as if you are explaining to a Korean developer.
-- Do not translate or answer in English. Only Korean.
-- Follow the above template and order exactly.
-
-[수정 파일 목록]
-{{파일목록}}
-
-[Unified diff]
-{{diff}}
-    `
-    .replace("{{파일목록}}", fileList)
-    .replace("{{diff}}", diff);
-
-    // GPT 호출
-    const openai = new OpenAIApi(new Configuration({ apiKey: openaiApiKey }));
-
-    const gptRes = await openai.createChatCompletion({
+    const gptRes = await openai.chat.completions.create({
       model: model,
       messages: [
         {
@@ -90,7 +75,7 @@ Instructions:
       temperature: 0.3
     });
 
-    const answer = gptRes.data.choices[0].message.content.trim();
+    const answer = gptRes.choices[0].message.content.trim();
 
     await octokit.rest.issues.createComment({
       owner,
