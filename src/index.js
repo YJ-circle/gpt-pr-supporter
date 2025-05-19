@@ -76,7 +76,7 @@ Do not translate to English. Use concise language.
           content: prompt
         }
       ],
-      max_tokens: 1000,
+      max_tokens: 5000,
       temperature: 0.3
     });
 
