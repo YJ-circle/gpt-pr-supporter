@@ -1,34 +1,28 @@
-name: 'PR GPT Summary'
-description: 'PR에 ChatGPT 기반 요약 코멘트를 자동으로 답니다.'
-
-branding:
-  icon: "message-square"
-  color: "yellow"
+name: "PR GPT Summary"
+description: "PR의 diff를 요약해 한국어 리뷰 코멘트를 자동으로 남기는 GitHub Action"
 
 inputs:
   token:
-    description: "GitHub token"
+    description: "GitHub 토큰(예: secrets.GITHUB_TOKEN)"
     required: true
   openai_api_key:
-    description: "OpenAI API Key"
+    description: "OpenAI API Key(예: secrets.OPENAI_API_KEY)"
     required: true
   model:
-    description: "OpenAI 모델명 (예: gpt-4o, gpt-3.5-turbo)"
-    required: true
-    default: "gpt-4.1-nano"
+    description: "OpenAI 모델 이름 (기본값: gpt-4o)"
+    default: "gpt-4o"
+    required: false
+  system_prompt:
+    description: |
+      시스템 프롬프트(선택).  
+      입력하지 않으면 기본 한국어 프롬프트를 사용합니다.
+    required: false
   template:
-    description: "PR 요약 양식 (항목명/순서/설명 포함, 반드시 한국어로 작성)"
-    required: true
-    default: |
-      **1. 수정한 파일 목록**
-      {{파일목록}}
-
-      **2. PR 수정 내용 전체 요약 정리**
-
-      **3. 파일별 수정 사항 정리**
-
-      **4. 리뷰 순서 추천**
+    description: |
+      추가 지시 템플릿(선택).  
+      {{diff}}, {{file_list}} 플레이스홀더를 쓰거나 비워 두면 자동으로 삽입됩니다.
+    required: false
 
 runs:
   using: "node16"
-  main: "dist/index.js"
+  main: "index.js"
